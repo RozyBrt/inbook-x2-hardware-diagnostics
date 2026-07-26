@@ -24,8 +24,10 @@ Pusat dokumentasi, diagnostik sistem, dan *knowledge base* penyelesaian masalah 
 inbook-x2-hardware-diagnostics/
 ├── README.md                                    <-- [File Utama] Gambaran Umum & Indeks Workspace
 ├── SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md       <-- [Dokumen - Lokal / WIP] Solusi Audio Speaker (Unresolved / Not Pushed)
+├── SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md <-- [Dokumen] Solusi Bluetooth CSR Lupa Pairing Pasca Suspend
 ├── SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md  <-- [Dokumen] Solusi Koneksi Bluetooth K380 Dual-Boot (Linux & Windows)
 ├── SOLUSI_DISPLAY_GLITCH_WINDOWS.md            <-- [Dokumen] Solusi Display Glitch Windows (CapCut & Office)
+├── SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md       <-- [Dokumen] Solusi Masalah Instant Wake / Suspend di Fedora
 ├── SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md  <-- [Dokumen] Solusi Penguncian Kernel & Manajemen Update (Fedora & Windows)
 └── .agents/                                     <-- [Sistem AI] Otak, Aturan Main, & Playbook Keterampilan AI
     ├── AGENTS.md                                <-- Kitab Aturan Utama (SOP Diagnosa, No-Guessing, & Append-Only)
@@ -48,15 +50,23 @@ Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masala
 * **Solusi Utama:** Penyuntikan GRUB bootloader `snd_soc_sof_es8336.quirk=0x10` (SSP0 + Speaker GPIO1), pencampuran digital WirePlumber `soft-volume`, dan penguat suara vokal EasyEffects DSP.
 * **Fitur:** Menyertakan *Cheat Sheet 3 Langkah* jika ingin menginstall distro Linux lain di masa depan.
 
-### ⌨️ 2. [SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md](./SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md)
+### 💤 2. [SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md](./SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md)
+* **Masalah:** Laptop tidak bisa tidur (*instant wake*), langsung menyala kembali di milidetik yang sama saat tombol Suspend ditekan atau layar ditutup.
+* **Solusi Utama:** Pengubahan parameter GRUB ke mode tidur Modern Standby (`mem_sleep_default=s2idle`) karena BIOS motherboard menolak protokol tidur lawas S3 (`deep`).
+
+### 🔗 3. [SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md](./SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md)
+* **Masalah:** Dongle USB Bluetooth CSR (`0a12:0001`) lupa pairing setelah bangun tidur, menyebabkan keyboard Logitech K380 dan TWS terputus dengan error `Host is down (112)`.
+* **Solusi Utama:** Aturan udev anti-autosuspend (`power/control="on"`) dan layanan `bluetooth-resume.service` untuk simulasi cabut-colok virtual (*unbind/bind*) secara otomatis setiap laptop bangun tidur.
+
+### ⌨️ 4. [SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md](./SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md)
 * **Masalah:** Koneksi keyboard Logitech K380 terputus-putus dan terjadi pengetikan karakter berulang (*stuck key*) di Linux & Windows.
 * **Solusi Utama:** Aturan `99-bluetooth-power.rules` (USB power lock `on`), `UserspaceHID=true` di BlueZ, script PowerShell `apply-windows-fixes.ps1`, dan pemindahan dongle mouse 2.4 GHz ke port USB kanan.
 
-### 🖥️ 3. [SOLUSI_DISPLAY_GLITCH_WINDOWS.md](./SOLUSI_DISPLAY_GLITCH_WINDOWS.md)
+### 🖥️ 5. [SOLUSI_DISPLAY_GLITCH_WINDOWS.md](./SOLUSI_DISPLAY_GLITCH_WINDOWS.md)
 * **Masalah:** Layar laptop berkedip, garis visual glitch, atau blank saat *drag & drop* media di CapCut atau *scrolling* di Microsoft Word/Excel pada OS Windows.
 * **Solusi Utama:** Nonaktifkan Audio Power Management di Registry Windows (`ConservationIdleTime = ffffffff`), matikan Panel Self Refresh (PSR) pada GPU Intel, dan setel akselerasi Direct3D di CapCut.
 
-### 🛡️ 4. [SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md](./SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md)
+### 🛡️ 6. [SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md](./SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md)
 * **Masalah:** Muncul 277 update dengan ikon peringatan oranye (`!`) di GNOME Software, dan ketidakkompatibilitas driver saat update dari Kernel 6 ke Kernel 7 yang menyebabkan regresi hardware.
 * **Solusi Utama:** Pemblokiran permanen update kernel (`excludepkgs=kernel*`) di `/etc/dnf/dnf.conf`, panduan update selektif peramban/keamanan tanpa menyentuh kernel, dan pemblokiran update driver otomatis pada Windows Update.
 
