@@ -50,9 +50,10 @@ Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masala
 * **Solusi Utama:** Penyuntikan GRUB bootloader `snd_soc_sof_es8336.quirk=0x10` (SSP0 + Speaker GPIO1), pencampuran digital WirePlumber `soft-volume`, dan penguat suara vokal EasyEffects DSP.
 * **Fitur:** Menyertakan *Cheat Sheet 3 Langkah* jika ingin menginstall distro Linux lain di masa depan.
 
-### 💤 2. [SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md](./SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md)
+### 💤 2. [SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md](./SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md) *(Closed Issue / Known Limitation)*
+* **Status:** ⛔ **CLOSED ISSUE (Known Hardware & Firmware Limitation)**
 * **Masalah:** Laptop tidak bisa tidur (*instant wake*), langsung menyala kembali di milidetik yang sama saat tombol Suspend ditekan atau layar ditutup.
-* **Solusi Utama:** Pengubahan parameter GRUB ke mode tidur Modern Standby (`mem_sleep_default=s2idle`) karena BIOS motherboard menolak protokol tidur lawas S3 (`deep`).
+* **Hasil Akhir:** Investigasi diputus untuk dihentikan dan dianggap sebagai batasan hardware/firmware bawaan OEM (Emdoor EM_IC325). Dokumen tetap disimpan di repositori sebagai dokumen historis & referensi skrip `csr-bluetooth-pre-suspend.service`.
 
 ### 🔗 3. [SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md](./SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md)
 * **Masalah:** Dongle USB Bluetooth CSR (`0a12:0001`) lupa pairing setelah bangun tidur, menyebabkan keyboard Logitech K380 dan TWS terputus dengan error `Host is down (112)`.
