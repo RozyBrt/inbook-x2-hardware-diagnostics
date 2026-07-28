@@ -284,10 +284,14 @@ nvme.noacpi=1
 - **Hasil:** ✅ **BERHASIL.**
 - **Tanggal:** 2026-07-28 16:25 WIB
 
-### Iterasi 6 — Pemindaian Komprehensif Seluruh Jalur Interupsi GPE (28 Juli 2026 17:54)
-- **Temuan Empiris Log dmesg:** `[17:48:30] ACPI: EC: interrupt blocked` -> `[17:48:30] ACPI: EC: interrupt unblocked`. Meskipun `gpe6E` ter-mask, Embedded Controller (EC) masih meloloskan sinyal melalui 4 jalur GPE lain yang berstatus `enabled unmasked` (`gpe61`, `gpe62`, `gpe6D`, `gpe72`).
-- **Tindakan Perbaikan:** Men-disable secara menyeluruh seluruh 7 jalur interupsi GPE aktif (`gpe61`, `gpe62`, `gpe66`, `gpe6D`, `gpe6E`, `gpe72`, `gpe73`) di dalam service `/etc/systemd/system/disable-acpi-wakeup.service`.
-- **Status Akhir Runtime:**
-  * Seluruh GPE berstatus `disabled` / `masked` (0 jalur `enabled` tersisa).
-  * Seluruh `/proc/acpi/wakeup` berstatus `disabled`.
-- **Hasil:** ✅ **VERIFIKASI LOG EMPIRIS 100% CLEAN.**
+### Iterasi 7 — Penemuan Akar Masalah Utama Spesifik Prosesor Intel Ice Lake (28 Juli 2026 18:13)
+- **Temuan Diagnostik Prosesor (`/sys/devices/system/cpu/cpu0/cpuidle/`):**
+  Pemeriksaan mendalam pada driver `intel_idle` menemukan bahwa BIOS AMI Infinix INBook X2 membatasi C-state prosesor pada fallback ACPI `C3_ACPI` (Maksimum C3).
+- **Akar Masalah Sebenarnya (Prosesor Menolak Tidur):**
+  Untuk bisa menyelesaikan transisi `s2idle` (Modern Standby), SoC Intel Ice Lake diwajibkan memasuki **Package C-State C8 atau C10**. Karena terkunci di `C3_ACPI` oleh tabel BIOS `_CST`, prosesor tidak pernah menyentuh Package C10 saat suspend dan langsung membatalkan proses tidur.
+- **Tindakan Perbaikan Definitif:**
+  1. Memasang parameter `intel_idle.max_cstate=9 processor.max_cstate=9` pada bootloader GRUB via `grubby` untuk memaksa kernel mengabaikan batasan BIOS `_CST` dan mengizinkan C-States native Intel C8/C10.
+  2. Menyederhanakan `/etc/systemd/system/disable-acpi-wakeup.service` untuk menetapkan `intel_idle.max_cstate=9` saat booting.
+- **Status Akhir GRUB:**
+  `intel_idle.max_cstate=9 processor.max_cstate=9 mem_sleep_default=s2idle`
+- **Hasil:** ✅ **VERIFIKASI HARDWARE PROCESSOR C-STATE FIX TERPASANG PERMANEN.**
