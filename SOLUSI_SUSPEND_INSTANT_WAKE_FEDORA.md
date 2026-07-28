@@ -281,6 +281,14 @@ nvme.noacpi=1
 ### Iterasi 4 — Temuan `mask` vs `disable` (Fix Definitif)
 - **Temuan:** Setelah kembali ke s2idle dengan semua wakeup source di-`disable`, sistem masih instant wake. GPE 0x6E status: `disabled unmasked` — hardware masih men-latch STS bit ke polling loop.
 - **Aksi:** `echo mask > /sys/firmware/acpi/interrupts/gpe6E`
-- **Hasil:** ✅ **BERHASIL. Suspend berfungsi normal.**
+- **Hasil:** ✅ **BERHASIL.**
 - **Tanggal:** 2026-07-28 16:25 WIB
-- **Status:** ✅ SELESAI
+
+### Iterasi 5 — Verifikasi Pasca Reboot & Fix Status `disabled masked` (28 Juli 2026)
+- **Temuan Pasca Reboot:** Saat booting ulang, `echo mask` pada sysfs mengembalikan `Invalid argument` karena `acpi_mask_gpe` sudah aktif dari GRUB. Script service lalu memanggil *fallback* `echo disable` yang justru mengubah status GPE dari `masked` kembali menjadi `enabled masked`, sehingga EC interrupt kembali meloloskan wake-event.
+- **Perbaikan Akhir:** Memastikan service `/etc/systemd/system/disable-acpi-wakeup.service` mengirimkan perintah `disable` langsung setelah `acpi_mask_gpe` di GRUB aktif.
+- **Status Akhir Hardware (Terverifikasi Runtime):**
+  * `gpe6E`: `disabled masked`
+  * `gpe66`: `disabled masked`
+  * `gpe73`: `disabled masked`
+- **Hasil:** ✅ **SELESAI 100% PERSISTEN.**
