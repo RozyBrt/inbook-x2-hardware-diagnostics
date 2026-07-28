@@ -2,12 +2,12 @@
 **Perangkat:** Infinix INBOOK X2  
 **Sistem Operasi:** Fedora Linux  
 **Tanggal Catatan:** Juli 2026  
-**Status Isu:** ⛔ **CLOSED ISSUE (Known Hardware & Firmware Limitation)**
+**Status Isu:** ⏸️ **PAUSED / ON HOLD (Pending Further Investigation)**
 
-> [!IMPORTANT]
-> **Keputusan Akhir (28 Juli 2026):**
-> Investigasi pemaksaan fitur *suspend* (S0ix / s2idle / S3) pada laptop **Infinix INBook X2** diputuskan untuk **dihentikan dan dianggap sebagai batasan hardware/firmware bawaan OEM (Emdoor EM_IC325)**. 
-> Fitur-fitur vital lainnya (Bluetooth Dual-Boot, Audio ES8336, dan perbaikan Glitch di Windows) telah berfungsi 100% stabil. Berkas ini tetap disimpan di repositori sebagai dokumen historis & referensi skrip `csr-bluetooth-pre-suspend.service`.
+> [!NOTE]
+> **Status Investigasi (28 Juli 2026):**
+> Investigasi pemaksaan fitur *suspend* (S0ix / s2idle / S3) pada laptop **Infinix INBook X2** saat ini dalam status **ditunda sementara (On Hold)** untuk pengujian lanjutan subsistem ACPI & Power Management.
+> Fitur-fitur vital lainnya (Bluetooth Dual-Boot, Audio ES8336, dan perbaikan Glitch di Windows) telah berfungsi 100% stabil. Berkas ini menyimpan seluruh rekam jejak diagnosa empiris & referensi skrip `csr-bluetooth-pre-suspend.service`.
 
 ---
 

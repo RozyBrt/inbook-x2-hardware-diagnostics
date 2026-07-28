@@ -27,7 +27,7 @@ inbook-x2-hardware-diagnostics/
 ├── SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md <-- [Dokumen] Solusi Bluetooth CSR Lupa Pairing Pasca Suspend
 ├── SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md  <-- [Dokumen] Solusi Koneksi Bluetooth K380 Dual-Boot (Linux & Windows)
 ├── SOLUSI_DISPLAY_GLITCH_WINDOWS.md            <-- [Dokumen] Solusi Display Glitch Windows (CapCut & Office)
-├── SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md       <-- [Dokumen] Solusi Masalah Instant Wake / Suspend di Fedora
+├── SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md       <-- [Dokumen] Solusi Masalah Instant Wake / Suspend di Fedora (On Hold)
 ├── SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md  <-- [Dokumen] Solusi Penguncian Kernel & Manajemen Update (Fedora & Windows)
 └── .agents/                                     <-- [Sistem AI] Otak, Aturan Main, & Playbook Keterampilan AI
     ├── AGENTS.md                                <-- Kitab Aturan Utama (SOP Diagnosa, No-Guessing, & Append-Only)
@@ -50,10 +50,10 @@ Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masala
 * **Solusi Utama:** Kompilasi driver kustom `es8336-fix` (penanganan inverted GPIO), penguncian parameter GRUB `snd_soc_sof_es8336.quirk=128`, dan aktivasi `api.alsa.soft-volume` pada WirePlumber.
 * **Fitur:** Menyertakan *Definitive 5-Step Runbook* jika ingin mengaktifkan speaker di distro Linux lain di masa depan.
 
-### 💤 2. [SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md](./SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md) *(Closed Issue / Known Limitation)*
-* **Status:** ⛔ **CLOSED ISSUE (Known Hardware & Firmware Limitation)**
+### 💤 2. [SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md](./SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md) *(On Hold / Pending Investigation)*
+* **Status:** ⏸️ **PAUSED / ON HOLD (Pending Further Investigation)**
 * **Masalah:** Laptop tidak bisa tidur (*instant wake*), langsung menyala kembali di milidetik yang sama saat tombol Suspend ditekan atau layar ditutup.
-* **Hasil Akhir:** Investigasi diputus untuk dihentikan dan dianggap sebagai batasan hardware/firmware bawaan OEM (Emdoor EM_IC325). Dokumen tetap disimpan di repositori sebagai dokumen historis & referensi skrip `csr-bluetooth-pre-suspend.service`.
+* **Status Lanjutan:** Investigasi ditunda sementara untuk pengujian subsistem ACPI/GPE & Modern Standby (`s2idle`) tahap berikutnya. Dokumen menyimpan seluruh riwayat hipotesis & referensi skrip `csr-bluetooth-pre-suspend.service`.
 
 ### 🔗 3. [SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md](./SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md)
 * **Masalah:** Dongle USB Bluetooth CSR (`0a12:0001`) lupa pairing setelah bangun tidur, menyebabkan keyboard Logitech K380 dan TWS terputus dengan error `Host is down (112)`.
