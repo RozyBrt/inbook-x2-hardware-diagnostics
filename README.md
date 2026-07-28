@@ -23,7 +23,7 @@ Pusat dokumentasi, diagnostik sistem, dan *knowledge base* penyelesaian masalah 
 ```text
 inbook-x2-hardware-diagnostics/
 ├── README.md                                    <-- [File Utama] Gambaran Umum & Indeks Workspace
-├── SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md       <-- [Dokumen - Lokal / WIP] Solusi Audio Speaker (Unresolved / Not Pushed)
+├── SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md       <-- [Dokumen] Solusi Audio Speaker Everest ES8336 (SOLVED)
 ├── SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md <-- [Dokumen] Solusi Bluetooth CSR Lupa Pairing Pasca Suspend
 ├── SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md  <-- [Dokumen] Solusi Koneksi Bluetooth K380 Dual-Boot (Linux & Windows)
 ├── SOLUSI_DISPLAY_GLITCH_WINDOWS.md            <-- [Dokumen] Solusi Display Glitch Windows (CapCut & Office)
@@ -44,11 +44,11 @@ inbook-x2-hardware-diagnostics/
 
 Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masalah secara langsung:
 
-### 🔊 1. SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md *(Local Only / Work in Progress)*
-* **Status:** *(Tidak diunggah ke repository publik karena investigasi masih berjalan dan belum 100% fix).*
-* **Masalah:** Speaker internal bisu/mati di Fedora Linux, volume mati mendadak di bawah 60%, dan kualitas vokal flat.
-* **Solusi Utama:** Penyuntikan GRUB bootloader `snd_soc_sof_es8336.quirk=0x10` (SSP0 + Speaker GPIO1), pencampuran digital WirePlumber `soft-volume`, dan penguat suara vokal EasyEffects DSP.
-* **Fitur:** Menyertakan *Cheat Sheet 3 Langkah* jika ingin menginstall distro Linux lain di masa depan.
+### 🔊 1. [SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md](./SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md)
+* **Status:** ✅ **SOLVED (100% Verified)**
+* **Masalah:** Speaker internal bisu/mati di Fedora Linux (Kernel >= 6.18+), volume mati mendadak di bawah 60%, dan kurva desibel ALSA melembek.
+* **Solusi Utama:** Kompilasi driver kustom `es8336-fix` (penanganan inverted GPIO), penguncian parameter GRUB `snd_soc_sof_es8336.quirk=128`, dan aktivasi `api.alsa.soft-volume` pada WirePlumber.
+* **Fitur:** Menyertakan *Definitive 5-Step Runbook* jika ingin mengaktifkan speaker di distro Linux lain di masa depan.
 
 ### 💤 2. [SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md](./SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md) *(Closed Issue / Known Limitation)*
 * **Status:** ⛔ **CLOSED ISSUE (Known Hardware & Firmware Limitation)**
