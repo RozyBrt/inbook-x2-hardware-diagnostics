@@ -42,13 +42,23 @@ Pesan ini muncul **di milidetik yang sama persis saat prosesor terakhir dipadamk
 ---
 
 ## 🛠️ 4. Solusi Permanen yang Diterapkan
-1. Semua setelan pemadaman sensor ACPI wakeup (`XHC`, `TXHC`, `RP09`, `AWAC`, `LID0`) dikembalikan ke setelan pabrik (`*enabled`).
-2. Mode tidur Linux diganti secara permanen dari `deep` menjadi **`s2idle` (Modern Standby / S0ix)** melalui *bootloader* GRUB:
+
+> [!IMPORTANT]
+> **Update 29 Juli 2026:** Solusi akhir yang definitif adalah **pencabutan fisik konektor keyboard internal** yang rusak dari motherboard (lihat Iterasi 18). Konfigurasi di bawah adalah riwayat awal yang kemudian disederhanakan total.
+
+1. Mode tidur Linux diganti secara permanen dari `deep` menjadi **`s2idle` (Modern Standby / S0ix)** melalui *bootloader* GRUB:
    ```bash
    sudo grubby --update-kernel=ALL --args="mem_sleep_default=s2idle"
    ```
+2. Keyboard internal yang rusak **dicabut secara fisik** dari motherboard.
+3. Semua workaround software (GPE masking, parameter ACPI, service systemd eksperimental) **dibersihkan total**.
 
-**Hasil Akhir:** ✅ **SUKSES BESAR!** Laptop berhasil tertidur lelap mengikuti standar Modern Standby tanpa pernah mengalami *instant wake* lagi.
+**Konfigurasi GRUB Final Bersih:**
+```text
+args="ro rhgb quiet $tuned_params snd_soc_sof_es8336.quirk=128 mem_sleep_default=s2idle"
+```
+
+**Hasil Akhir:** ✅ **SELESAI TOTAL.** Suspend dan Resume berjalan normal tanpa workaround apapun.
 
 ---
 
@@ -250,24 +260,23 @@ Selama eksperimen mode `deep`, parameter `acpi_mask_gpe=0x6E,0x66` dihapus dari 
 
 ---
 
-### Solusi Final yang Diterapkan (Persisten)
+### Solusi Final yang Diterapkan (Status Aktual — 29 Juli 2026)
 
-**GRUB kernel args** (`/etc/default/grub` via `grubby`):
-```
-mem_sleep_default=s2idle
-acpi.ec_no_wakeup=1
-acpi.ec_freeze_events=1
-acpi_mask_gpe=0x6E,0x66
-button.lid_init_state=open
-nvme.noacpi=1
+> [!IMPORTANT]
+> Konfigurasi di bawah adalah **status sistem saat ini** setelah pembersihan total di Iterasi 18.
+
+**GRUB kernel args (bersih, minimal):**
+```text
+args="ro rhgb quiet $tuned_params snd_soc_sof_es8336.quirk=128 mem_sleep_default=s2idle"
 ```
 
 **Systemd services yang aktif:**
 
 | Service | Fungsi |
 |---|---|
-| `disable-acpi-wakeup.service` | Runtime `mask` GPE 0x6E/0x66/0x73 + disable semua PCI/platform wakeup source |
 | `csr-bluetooth-pre-suspend.service` | De-authorize dongle CSR clone sebelum suspend untuk mencegah error `-107` |
+
+**Penyebab Utama (Terverifikasi):** Keyboard internal rusak yang mengirim sinyal IRQ 1 terus-menerus — diselesaikan dengan mencabut konektor keyboard secara fisik.
 
 ---
 
