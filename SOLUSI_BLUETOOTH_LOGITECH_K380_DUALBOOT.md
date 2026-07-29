@@ -1,9 +1,10 @@
 # Laporan Identifikasi & Pemetaan Masalah Koneksi Bluetooth Keyboard Logitech K380
 
 **Tanggal Identifikasi:** 23 Juli 2026  
-**Perangkat:** Laptop Infinix (Intel Ice Lake Platform)  
+**Terakhir Diperbarui:** 29 Juli 2026  
+**Perangkat:** Laptop Infinix INBook X2 (Intel Ice Lake Platform)  
 **Sistem Operasi:** Fedora Linux 44 Workstation & Windows (Dual-Boot)  
-**Perangkat Bluetooth:** Logitech K380 (Bluetooth LE HID Keyboard)  
+**Perangkat Bluetooth:** Logitech K380 (Bluetooth HID Keyboard)  
 
 ---
 
@@ -11,12 +12,15 @@
 
 Berdasarkan analisis mendalam pada kernel Linux dan bus perangkat lunak/keras laptop Infinix ini, berikut adalah peta komponen yang terlibat dalam koneksi Bluetooth:
 
-| Komponen | Spesifikasi / Identitas Hardware | Driver / Modul di Linux |
-| :--- | :--- | :--- |
-| **Wi-Fi & BT Combo Card** | Intel Wireless-AC 9461 (CNVi Jefferson Peak) | `iwlwifi` (Wi-Fi) |
-| **Bluetooth Controller** | Intel Corp. Bluetooth 9460/9560 (`USB ID: 8087:0aaa`) | `btusb`, `btintel` |
-| **Keyboard Eksternal** | Logitech K380 Keyboard (`MAC: F4:73:35:B6:96:5B`) | `hid-generic` / `uhid` (Bluetooth LE) |
-| **Mouse Eksternal** | Logitech M185 (`USB ID: 046d:c542`) | Wireless Receiver 2.4 GHz USB |
+| Komponen | Spesifikasi / Identitas Hardware | Driver / Modul di Linux | Jalur Sysfs / Path |
+| :--- | :--- | :--- | :--- |
+| **Wi-Fi & BT Combo Card** | Intel Wireless-AC 9461 (CNVi Jefferson Peak) | `iwlwifi` (Wi-Fi) | `wlo1` |
+| **BT Internal (hci1)** | Intel Corp. Bluetooth 9460/9560 (`USB ID: 8087:0aaa`, `MAC: 0C:9A:3C:03:41:47`) | `btusb`, `btintel` | `/sys/bus/usb/devices/3-10/` |
+| **BT Eksternal (hci0)** | CSR8510 A10 USB Dongle (`USB ID: 0a12:0001`, `MAC: 00:1A:7D:DA:71:13`, HCI/LMP Ver: 9, subver: 2312) | `btusb` (CSR clone workaround) | `/sys/bus/usb/devices/3-7/` |
+| **Keyboard** | Logitech K380 (`MAC: F4:73:35:B6:96:5B`, Vendor: 1133, Product: 45890) | `hid-generic` (BR/EDR HID) | BlueZ pair di CSR Dongle |
+| **Speaker** | JBL Go 4 (`MAC: 90:F2:60:CA:E2:81`) | `btusb` A2DP/BR/EDR | BlueZ pair di Intel Internal |
+| **Speaker Cadangan** | Soundcore R50i (`MAC: F4:B6:2D:1D:DC:59`) | `btusb` A2DP/BR/EDR | BlueZ pair di Intel Internal |
+| **Mouse Eksternal** | Logitech M185 | Wireless Receiver 2.4 GHz USB | Port USB kanan (sisi tombol power) |
 
 ---
 
@@ -235,6 +239,58 @@ Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Enum\USB\VID_8087&PID_0AAA" -Recur
     Set-ItemProperty -Path $_.PSPath -Name "SelectiveSuspendSupported" -Value 0 -Type DWord -ErrorAction SilentlyContinue
 }
 ```
+
+---
+
+* **[Iterasi 22 - 20:22 WIB (29 Juli 2026)] Mapping Ulang Penuh Sistem — Persiapan Pairing K380 ke Dongle USB CSR:**
+  * *Konteks/Latar Belakang:* Pengguna mencolokkan kembali **Dongle USB CSR Bluetooth 5.0** (`0a12:0001`, `CSR8510 A10`, `MAC: 00:1A:7D:DA:71:13`) ke laptop. Tujuan: menghubungkan **Keyboard Logitech K380** ke dongle ini secara eksklusif, menggantikan koneksi via Bluetooth Internal yang sering putus-nyambung.
+  * *Hasil Mapping `lsusb`:*
+    * `3-7` → **CSR Dongle** `0a12:0001` → `hci0` [**DEFAULT**]
+    * `3-10` → **Intel Internal BT** `8087:0aaa` → `hci1` [aktif, `authorized=1`]
+  * *Temuan Status Kritis Saat Ini:*
+    1. **CSR Dongle (`hci0`)** ditetapkan sebagai **primary & default controller** oleh BlueZ (dikonfirmasi `bluetoothctl list`). Status: `Powered: yes`, `Discoverable: yes`, `Pairable: yes`. USB `power/control = on` ✅ (diprotect `50-bluetooth-no-autosuspend.rules`).
+    2. **Intel Internal (`hci1`)** AKTIF dan **tidak diblokir** (`authorized=1`). Aturan `81-disable-internal-bluetooth.rules` telah dihapus pada Iterasi sebelumnya — modul Intel kini berjalan berdampingan.
+    3. **K380 (`F4:73:35:B6:96:5B`) memiliki *pairing cache* di 2 lokasi:**
+       * `/var/lib/bluetooth/00:1A:7D:DA:71:13/F4:73:35:B6:96:5B/` → (CSR Dongle) `LinkKey` tersimpan, `Trusted=true`
+       * Tidak ada cache K380 di `/var/lib/bluetooth/0C:9A:3C:03:41:47/` ✅
+    4. **Koneksi aktif saat ini (`btmgmt con`):**
+       * `hci0` (CSR): **Tidak ada koneksi aktif** — K380 belum terkoneksi ke dongle.
+       * `hci1` (Intel): `F4:73:35:B6:96:5B type BR/EDR` — K380 **sedang terhubung ke Intel Internal**.
+    5. **Pola dmesg menunjukkan K380 reconnect berulang ke CSR** (`hid-generic ... BLUETOOTH HID v42.01 Keyboard [Keyboard K380] on 00:1a:7d:da:71:13`), namun gagal mempertahankan sesi karena K380 sudah ter-pair ke Intel Internal sebelumnya.
+  * *Peta Konfigurasi Saat Ini:*
+    | File Konfigurasi | Isi | Status |
+    | :--- | :--- | :--- |
+    | `/etc/udev/rules.d/50-bluetooth-no-autosuspend.rules` | Nonaktifkan autosuspend CSR `0a12:0001` | ✅ Aktif |
+    | `/etc/udev/rules.d/99-bluetooth-power.rules` | Nonaktifkan autosuspend Intel `8087:0aaa` | ✅ Aktif |
+    | `/etc/modprobe.d/btusb.conf` | `enable_autosuspend=0` | ✅ Aktif (terverifikasi `/sys/module/btusb/parameters/enable_autosuspend = N`) |
+    | `/etc/bluetooth/input.conf` | `UserspaceHID=true`, `IdleTimeout=0` | ✅ Aktif |
+    | `/etc/NetworkManager/conf.d/disable-wifi-powersave.conf` | `wifi.powersave = 2` | ✅ Aktif |
+    | `/etc/udev/rules.d/81-disable-internal-bluetooth.rules` | Blokir Intel Internal | ❌ **Tidak ada** (Intel aktif) |
+  * *Arsitektur Target (Rencana Setelah Pairing):*
+    * **CSR Dongle (`hci0`)** → Eksklusif untuk **Keyboard K380** (1 device, maksimal stabil)
+    * **Intel Internal (`hci1`)** → Untuk perangkat audio (JBL Go 4, Soundcore R50i) sesuai Iterasi 17
+  * *Status:* Mapping selesai. Sistem siap untuk proses pairing/koneksi K380 ke dongle CSR.
+
+* **[Iterasi 23 - 21:03 WIB (29 Juli 2026)] Verifikasi Koneksi K380 di Dongle CSR, Permanensi MAC, & Pengujian Independensi Switching Controller:**
+  * *Verifikasi Koneksi K380:* Log kernel (`dmesg`) dan `/proc/bus/input/devices` memverifikasi K380 (`F4:73:35:B6:96:5B`) telah terhubung secara eksklusif ke **Dongle USB CSR** (`Phys=00:1a:7d:da:71:13`, `input22`) dan berfungsi normal untuk mengetik.
+  * *Analisis Permanensi MAC Address:* Dikonfirmasi bahwa MAC Address adapter (`00:1A:7D:DA:71:13` untuk CSR Dongle dan `0C:9A:3C:03:41:47` untuk Intel Internal) bersifat **100% permanen (ter-burn di EEPROM/firmware fisik hardware)**. Nilai ini tidak akan berubah saat reboot, reset keyboard, maupun ganti OS.
+  * *Pengujian Empiris Switching Default Controller:*
+    * *Tindakan:* Mengalihkan *default controller* sistem dari Dongle CSR (`hci1`) kembali ke Intel Internal (`hci0`) via `bluetoothctl select 0C:9A:3C:03:41:47`.
+    * *Hasil Verifikasi Empiris:* Sesi nirkabel K380 pada Dongle USB CSR **tetap terhubung 100% aktif tanpa terputus sama sekali** (`Phys=00:1a:7d:da:71:13`, `Handlers=sysrq kbd leds event15`).
+    * *Kesimpulan Arsitektur:* Pengaturan *default controller* di BlueZ hanya menentukan fokus antarmuka GUI/CLI untuk proses *pair/discovery* perangkat baru. Sesi enkripsi nirkabel yang sudah terbentuk berjalan secara terisolasi dan independen pada masing-masing chip controller fisik. Pengguna dapat dengan aman mengendalikan GUI untuk Bluetooth Internal (Audio) tanpa mengganggu stabilitas K380 di Dongle CSR.
+
+---
+
+* **[Iterasi 24 - 22:14 WIB (29 Juli 2026)] Analisis Antarmuka UI GNOME Bluetooth Fedora & Solusi Pembedaan Multi-Adapter:**
+  * *Pertanyaan/Kendala Pengguna:* Pengguna menanyakan apakah UI Bluetooth di Fedora (GNOME Settings) bisa membedakan perangkat mana yang terhubung ke Bluetooth internal vs USB Bluetooth dongle, guna memudahkan menghubungkan keyboard Logitech K380 secara khusus ke USB dongle.
+  * *Hasil Analisis Empiris UI GNOME Settings:*
+    1. **Keterbatasan UI Bawaan (GNOME Control Center):** Antarmuka GUI bawaan Fedora (GNOME Settings / `gnome-bluetooth-47/50`) **TIDAK menyediakan penanda visual (label/badge) maupun pilihan tab/dropdown adapter**. GNOME Settings menggabungkan/menampilkan perangkat berbasis kontroler default yang aktif tanpa memisahkan secara visual mana port `hci0` (CSR Dongle) dan `hci1` (Intel Internal).
+    2. **Status Mapping Penyimpanan BlueZ (`/var/lib/bluetooth/`):**
+       * `00:1A:7D:DA:71:13` (USB Dongle CSR) → Khusus terpasang ke **Logitech K380** (`F4:73:35:B6:96:5B`).
+       * `0C:9A:3C:03:41:47` (Intel Internal) → Terpasang ke **JBL Go 4** (`90:F2:60:CA:E2:81`) & **soundcore R50i** (`F4:B6:2D:1D:DC:59`).
+  * *Solusi Pembedaan Adapter untuk Pengguna:*
+    1. **Penerapan GUI Multi-Adapter (`Blueman`):** Menginstal `blueman` (`sudo dnf install blueman`). `blueman-manager` memiliki menu dropdown *Adapter Switcher* di GUI yang secara eksplisit memisahkan daftar perangkat per adapter fisik (`hci0` vs `hci1`).
+    2. **Kustomisasi Alias System Bluetooth:** Mengubah alias adapter via `bluetoothctl system-alias` agar identitas kontroler mudah dikenali (`USB Dongle Keyboard` vs `Internal Laptop`).
 
 ---
 
