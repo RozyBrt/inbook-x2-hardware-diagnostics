@@ -4,6 +4,7 @@
 **Perangkat:** Laptop Infinix INBook X2 (Intel Core i7-1065G7 / Ice Lake Platform)  
 **Motherboard Revision:** Emdoor `EM_IC325_200B_V1.0`  
 **Codec Audio:** Everest Semiconductor ES8336 (`sofessx8336` / `snd_soc_sof_es8336`)  
+**Status Isu:** ✅ **SOLVED + Iterasi 24: PipeWire Auto-Resume Fix (29 Juli 2026)**  
 
 ---
 
@@ -165,6 +166,36 @@ Jika ingin mencoba mengaktifkan Speaker dan DMIC secara bersamaan di Linux, dipe
   * *Penyelidikan Empiris:* Pengukuran PipeWire (`pactl list sinks`) mengonfirmasi bahwa posisi slider 40% secara matematis menurunkan sinyal kelistrikan hingga `-23.88 dB` (hanya 6.4% dari daya penuh).
   * *Penjelasan Teknis:* Karena mikro-speaker laptop memiliki sensitivitas fisik yang kecil, daya 6.4% pada posisi slider 40% memang diperuntukkan sebagai volume latar belakang (*background audio*).
   * *Rekomendasi Operasional:* Posisi slider **70%–80%** adalah level volume sedang/normal mendengarkan YouTube sehari-hari di Linux Fedora, sedangkan **100%** adalah volume kencang maksimal.
+
+* **[Iterasi 24 - 14:55 WIB (29 Juli 2026)] Isolasi & Fix PipeWire Kehilangan Audio Pasca-Resume dari Suspend:**
+  * *Gejala:* Setelah laptop berhasil bangun dari mode suspend (s2idle), speaker internal bisu total meskipun tidak ada perubahan konfigurasi apapun. Memutar audio dari YouTube tidak menghasilkan suara.
+  * *Diagnosa Empiris:* Pemeriksaan `wpctl status`, `pactl list sinks`, dan `journalctl` mengonfirmasi:
+    * Driver `es8336-fix` (out-of-tree patch): ✅ aktif
+    * Quirk `128`: ✅ benar
+    * Topology `sof-icl-es8336-ssp0.tplg`: ✅ loaded
+    * State PipeWire sink: `IDLE` (bukan `SUSPENDED`)
+    * Mute: `no`, Active Port: `analog-output-speaker`
+    * **Tidak ada log PipeWire restart setelah `PM: resume devices`** → PipeWire kehilangan sinkronisasi dengan hardware ES8336 saat transisi daya s2idle tanpa melakukan recovery.
+  * *Akar Masalah:* PipeWire/WirePlumber tidak memiliki mekanisme restart otomatis setelah resume dari suspend. Saat hardware audio di-power-cycle oleh PMC (Power Management Controller) saat s2idle, PipeWire tidak mendeteksi perubahan ini dan tetap dalam state stale (tidak valid).
+  * *Bukti Fix Manual:* `systemctl --user restart wireplumber pipewire pipewire-pulse` → audio langsung berfungsi normal. Ini mengonfirmasi akar masalah 100% di layer PipeWire, bukan hardware.
+  * *Tindakan Perbaikan Permanen:* Membuat service `/etc/systemd/system/pipewire-resume.service` yang secara otomatis merestart PipeWire stack (`wireplumber`, `pipewire`, `pipewire-pulse`) 2 detik setelah laptop bangun dari suspend:
+    ```ini
+    [Unit]
+    After=suspend.target hibernate.target hybrid-sleep.target
+    
+    [Service]
+    Type=oneshot
+    User=rozi
+    Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+    ExecStartPre=/bin/sleep 2
+    ExecStart=/bin/systemctl --user restart wireplumber pipewire pipewire-pulse
+    
+    [Install]
+    WantedBy=suspend.target hibernate.target hybrid-sleep.target
+    ```
+  * *Verifikasi Instalasi:* Service berhasil diaktifkan (`systemctl enable pipewire-resume.service`). Symlink terbuat di `suspend.target.wants/`.
+  * *Verifikasi Fix (15:03 WIB, 29 Juli 2026):* Setelah penambahan `XDG_RUNTIME_DIR=/run/user/1000` pada service, pengujian suspend → resume → putar audio **berhasil**. Audio langsung berbunyi tanpa intervensi manual.
+  * *Status:* ✅ **TERVERIFIKASI SUKSES. PipeWire auto-restart berfungsi penuh setelah resume dari suspend.**
 
 
 
