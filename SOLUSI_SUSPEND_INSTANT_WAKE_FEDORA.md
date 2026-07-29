@@ -5,9 +5,11 @@
 **Status Isu:** ✅ **SELESAI — Keyboard Internal Dicabut Secara Fisik. Semua Workaround Dibersihkan (Iterasi 18)**
 
 > [!NOTE]
-> **Status Investigasi (28 Juli 2026):**
-> Investigasi pemaksaan fitur *suspend* (S0ix / s2idle / S3) pada laptop **Infinix INBook X2** saat ini dalam status **ditunda sementara (On Hold)** untuk pengujian lanjutan subsistem ACPI & Power Management.
-> Fitur-fitur vital lainnya (Bluetooth Dual-Boot, Audio ES8336, dan perbaikan Glitch di Windows) telah berfungsi 100% stabil. Berkas ini menyimpan seluruh rekam jejak diagnosa empiris & referensi skrip `csr-bluetooth-pre-suspend.service`.
+> **Status Investigasi (29 Juli 2026) — SELESAI ✅**
+> Masalah *instant wake* pada fitur Suspend laptop **Infinix INBook X2** telah terselesaikan secara definitif.
+> **Akar masalah:** Keyboard internal yang rusak secara fisik terus-menerus mengirim sinyal interupsi (IRQ 1) yang membangunkan laptop dari mode suspend.
+> **Solusi:** Konektor keyboard internal dicabut secara fisik dari motherboard. Sistem kini berjalan bersih dengan konfigurasi minimal tanpa workaround apapun.
+
 
 ---
 
