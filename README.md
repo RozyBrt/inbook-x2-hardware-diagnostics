@@ -23,6 +23,7 @@ Pusat dokumentasi, diagnostik sistem, dan *knowledge base* penyelesaian masalah 
 ```text
 inbook-x2-hardware-diagnostics/
 ├── README.md                                    <-- [File Utama] Gambaran Umum & Indeks Workspace
+├── DIAGNOSIS_KONEKSI_WIFI_DUALBOOT.md     <-- [Dokumen] Diagnosis Stabilitas Wi-Fi & Optimasi Dual-Boot (✅ SOLVED)
 ├── PANDUAN_SOLUSI_AUDIO_MIC_LINUX_FEDORA.md       <-- [Dokumen] Solusi Paritas Audio Speaker & Digital Mic (✅ SOLVED)
 ├── SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md       <-- [Dokumen] Solusi Audio Speaker Everest ES8336 (SOLVED)
 ├── SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md <-- [Dokumen] Solusi Bluetooth CSR Lupa Pairing Pasca Suspend
@@ -44,6 +45,12 @@ inbook-x2-hardware-diagnostics/
 ## 📄 3. Indeks Berkas Solusi Terintegrasi
 
 Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masalah secara langsung:
+
+### 📡 0. [DIAGNOSIS_KONEKSI_WIFI_DUALBOOT.md](./DIAGNOSIS_KONEKSI_WIFI_DUALBOOT.md)
+* **Status:** ✅ **SOLVED (Terverifikasi 31 Juli 2026)**
+* **Masalah:** Latensi Wi-Fi 2.4 GHz fluktuatif (*ping spike* hingga 200 ms+) akibat interferensi *Bluetooth Coexistence* dan USB Dongle eksternal.
+* **Solusi Utama:** Penonaktifan *Wi-Fi Power Save* (`wifi.powersave=2`), penguncian USB power `on` pada Intel Bluetooth (`8087:0aaa`), dan peralihan pairing Keyboard K380 langsung ke Bluetooth internal Intel bawaan laptop.
+
 
 ### 🔊 1. [SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md](./SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md)
 * **Status:** ✅ **SOLVED (100% Verified)**
