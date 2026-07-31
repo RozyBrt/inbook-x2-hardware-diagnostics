@@ -23,6 +23,7 @@ Pusat dokumentasi, diagnostik sistem, dan *knowledge base* penyelesaian masalah 
 ```text
 inbook-x2-hardware-diagnostics/
 ├── README.md                                    <-- [File Utama] Gambaran Umum & Indeks Workspace
+├── PANDUAN_SOLUSI_AUDIO_MIC_LINUX_FEDORA.md       <-- [Dokumen] Solusi Paritas Audio Speaker & Digital Mic (✅ SOLVED)
 ├── SOLUSI_AUDIO_EVEREST_ES8336_FEDORA.md       <-- [Dokumen] Solusi Audio Speaker Everest ES8336 (SOLVED)
 ├── SOLUSI_BLUETOOTH_CSR_PAIRING_LOSS_FEDORA.md <-- [Dokumen] Solusi Bluetooth CSR Lupa Pairing Pasca Suspend
 ├── SOLUSI_BLUETOOTH_LOGITECH_K380_DUALBOOT.md  <-- [Dokumen] Solusi Koneksi Bluetooth K380 Dual-Boot (Linux & Windows)
@@ -72,7 +73,13 @@ Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masala
 * **Masalah:** Muncul 277 update dengan ikon peringatan oranye (`!`) di GNOME Software, dan ketidakkompatibilitas driver saat update dari Kernel 6 ke Kernel 7 yang menyebabkan regresi hardware.
 * **Solusi Utama:** Pemblokiran permanen update kernel (`excludepkgs=kernel*`) di `/etc/dnf/dnf.conf`, panduan update selektif peramban/keamanan tanpa menyentuh kernel, dan pemblokiran update driver otomatis pada Windows Update.
 
+### 🎙️ 7. [PANDUAN_SOLUSI_AUDIO_MIC_LINUX_FEDORA.md](./PANDUAN_SOLUSI_AUDIO_MIC_LINUX_FEDORA.md)
+* **Status:** ✅ **SOLVED (100% Verified)**
+* **Masalah:** Penyesuaian paritas spesifikasi audio Windows (`8086:34C8`, Subsystem `1A21:2782`) agar Speaker Internal & Digital Microphone (DMIC) dapat bekerja 100% bersamaan di Fedora Linux.
+* **Solusi Utama:** Pengaktifan SOF DSP (`dsp_driver=3`), pengalokasian DMIC 2-channel (`dmic_num=2`), penguncian sample rate PipeWire di 48kHz (`99-clock-fix.conf`), aktivasi gain ALSA mixer (`Internal Mic` & `ADC PGA`), dan adapter pemetaan statis PipeWire Source (`98-internal-mic-source.conf`).
+
 ---
+
 
 ## ⚙️ 4. Konfigurasi Otak & Aturan AI (`.agents/`)
 
