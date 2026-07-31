@@ -31,6 +31,7 @@ inbook-x2-hardware-diagnostics/
 ├── SOLUSI_DISPLAY_GLITCH_WINDOWS.md            <-- [Dokumen] Solusi Display Glitch Windows (CapCut & Office)
 ├── SOLUSI_SUSPEND_INSTANT_WAKE_FEDORA.md       <-- [Dokumen] Solusi Masalah Instant Wake / Suspend di Fedora (✅ SOLVED)
 ├── SOLUSI_SYSTEM_UPDATE_KERNEL_LOCK_FEDORA.md  <-- [Dokumen] Solusi Penguncian Kernel & Manajemen Update (Fedora & Windows)
+├── SOLUSI_TOUCHPAD_SCROLL_SENSITIVITY_DUALBOOT.md <-- [Dokumen] Solusi Sensitivitas Scroll Touchpad Fedora (✅ SOLVED)
 └── .agents/                                     <-- [Sistem AI] Otak, Aturan Main, & Playbook Keterampilan AI
     ├── AGENTS.md                                <-- Kitab Aturan Utama (SOP Diagnosa, No-Guessing, & Append-Only)
     └── skills/
@@ -84,6 +85,11 @@ Klik pada tautan berkas di bawah ini untuk mengakses panduan penyelesaian masala
 * **Status:** ✅ **SOLVED (100% Verified)**
 * **Masalah:** Penyesuaian paritas spesifikasi audio Windows (`8086:34C8`, Subsystem `1A21:2782`) agar Speaker Internal & Digital Microphone (DMIC) dapat bekerja 100% bersamaan di Fedora Linux.
 * **Solusi Utama:** Pengaktifan SOF DSP (`dsp_driver=3`), pengalokasian DMIC 2-channel (`dmic_num=2`), penguncian sample rate PipeWire di 48kHz (`99-clock-fix.conf`), aktivasi gain ALSA mixer (`Internal Mic` & `ADC PGA`), dan adapter pemetaan statis PipeWire Source (`98-internal-mic-source.conf`).
+
+### 🖱️ 8. [SOLUSI_TOUCHPAD_SCROLL_SENSITIVITY_DUALBOOT.md](./SOLUSI_TOUCHPAD_SCROLL_SENSITIVITY_DUALBOOT.md)
+* **Status:** ✅ **SOLVED (Terverifikasi 31 Juli 2026)**
+* **Masalah:** Sensitivitas scroll 2 jari pada touchpad bergerak sangat cepat (*hyper-sensitive*) di Fedora Linux (Wayland / libinput).
+* **Solusi Utama:** Kompilasi dan instalasi `libinput-config` dari `~/Documents/libinput-config` serta penyetelan `scroll-factor=0.3` pada file `/etc/libinput.conf`.
 
 ---
 
