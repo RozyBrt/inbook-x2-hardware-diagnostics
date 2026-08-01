@@ -197,6 +197,13 @@ Jika ingin mencoba mengaktifkan Speaker dan DMIC secara bersamaan di Linux, dipe
   * *Verifikasi Fix (15:03 WIB, 29 Juli 2026):* Setelah penambahan `XDG_RUNTIME_DIR=/run/user/1000` pada service, pengujian suspend → resume → putar audio **berhasil**. Audio langsung berbunyi tanpa intervensi manual.
   * *Status:* ✅ **TERVERIFIKASI SUKSES. PipeWire auto-restart berfungsi penuh setelah resume dari suspend.**
 
+* **[Iterasi 25 - 00:55 WIB (2 Agustus 2026)] Resolusi Sound Pop / Clicking Noise (Disable PipeWire Auto-Suspend):**
+  * *Gejala:* Terkadang saat laptop menyala aktif atau standby, terdengar suara ketukan *"tek"* atau *"pop"* dari speaker saat memutar/menghentikan audio.
+  * *Akar Masalah:* WirePlumber secara otomatis meng-suspend node audio `alsa_output.pci-0000_00_1f.3-platform-sof-essx8336.*` setelah 5 detik idle untuk menghemat daya. Transisi status Active <-> Suspended memicu lontaran tegangan transient (*power gating*) pada chip Everest ES8336.
+  * *Tindakan Solusi:* Menambahkan `session.suspend-on-idle = false` pada aturan node alsa_output di `~/.config/wireplumber/wireplumber.conf.d/50-infinix-audio.conf`.
+  * *Hasil:* WirePlumber tidak lagi memutuskan arus daya ke node audio ES8336 saat idle, mencegah timbulnya letupan daya transient (*sound pop/click*) saat transisi pemutaran audio.
+
+
 
 
 
